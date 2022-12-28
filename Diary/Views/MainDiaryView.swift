@@ -10,8 +10,9 @@ import UIKit
 final class MainDiaryView: UIView {
     var collectionView: UICollectionView! = nil
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(collectionView: UICollectionView) {
+        super.init(frame: .zero)
+        self.collectionView = collectionView
         setupUI()
     }
     
@@ -22,24 +23,24 @@ final class MainDiaryView: UIView {
 
 // MARK: - Configure CollectionView
 extension MainDiaryView {
-    private func configureLayout() -> UICollectionViewLayout {
-        let configuration = UICollectionLayoutListConfiguration(appearance: .plain)
-        return UICollectionViewCompositionalLayout.list(using: configuration)
-    }
-    
-    private func configureCollectionView() {
-        collectionView = UICollectionView(frame: .zero,
-                                          collectionViewLayout: configureLayout())
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(collectionView)
-    }
+//    private func configureLayout() -> UICollectionViewLayout {
+//        let configuration = UICollectionLayoutListConfiguration(appearance: .plain)
+//        return UICollectionViewCompositionalLayout.list(using: configuration)
+//    }
+//    
+//    private func configureCollectionView() {
+//        collectionView = UICollectionView(frame: .zero,
+//                                          collectionViewLayout: configureLayout())
+//        collectionView.translatesAutoresizingMaskIntoConstraints = false
+//        self.addSubview(collectionView)
+//    }
 }
 
 // MARK: - UIConstraints
 extension MainDiaryView {
     private func setupUI() {
         self.backgroundColor = .white
-        configureCollectionView()
+//        configureCollectionView()
         self.addSubview(collectionView)
         setupConstraints()
     }

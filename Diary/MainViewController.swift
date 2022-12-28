@@ -13,7 +13,7 @@ final class MainViewController: UIViewController {
     private lazy var dataSource = configureDataSource()
     private var diaryDatas: [DiaryData] = []
     
-    private let mainDiaryView = MainDiaryView()
+    private lazy var mainDiaryView = MainDiaryView(collectionView: configureCollectionView())
     private let coreDataManager = CoreDataManager.shared
     
     enum Section {
@@ -29,6 +29,7 @@ final class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = mainDiaryView
+        
         mainDiaryView.collectionView.delegate = self
         setNavigationBar()
     }
@@ -98,5 +99,50 @@ extension MainViewController {
         snapshot.appendSections([.main])
         snapshot.appendItems(diaryDatas)
         dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+    }
+}
+
+// MARK: - Configuration
+extension MainViewController {
+    private func configureLayout() -> UICollectionViewLayout {
+        var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
+        
+        configuration.trailingSwipeActionsConfigurationProvider = makeSwipeActions(for:)
+        return UICollectionViewCompositionalLayout.list(using: configuration)
+    }
+    
+    private func configureCollectionView() -> UICollectionView {
+        var collectionView: UICollectionView! = nil
+        collectionView = UICollectionView(frame: .zero,
+                                          collectionViewLayout: configureLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }
+    
+    private func makeSwipeActions(for indexPath: IndexPath?) -> UISwipeActionsConfiguration? {
+        guard let indexPath = indexPath,
+            let id = diaryDatas[indexPath.item].id else { return nil }
+        
+        let deleteActionTitle = NSLocalizedString("Delete", comment: "Delete action title")
+        let deleteAction = UIContextualAction(style: .destructive, title: deleteActionTitle) {
+            [weak self] UIContextualAction, UIView, completion in
+            
+            self?.coreDataManager.deleteData(id: id) { bool in
+                print(bool)
+                self?.setupData()
+                self?.applySnapshot(animatingDifferences: true)
+            }
+            completion(false)
+        }
+        
+        let shareActionTitle = NSLocalizedString("Share", comment: "Share action title")
+        let shareAction = UIContextualAction(style: .normal, title: shareActionTitle) {
+            [weak self] UIContextualAction, UIView, completion in
+            self?.applySnapshot(animatingDifferences: false)
+            completion(false)
+        }
+        deleteAction.backgroundColor = .red
+        shareAction.backgroundColor = .blue
+        return UISwipeActionsConfiguration(actions: [deleteAction,shareAction])
     }
 }
