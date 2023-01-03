@@ -18,14 +18,16 @@ final class EditViewController: UIViewController {
     private let currentDate = Date()
     
     private var locationManager: CLLocationManager?
-    private var diaryData: DiaryData?
+    
+    private var currentData: CurrentDiary?
+    
     private var main: String?
     private var iconID: String?
-    private lazy var editView = EditDiaryView(diaryData: diaryData)
+    private lazy var editView = EditDiaryView(currentData: currentData)
     
-    init(diaryData: DiaryData?) {
+    init(currentData: CurrentDiary?) {
         super.init(nibName: nil, bundle: nil)
-        self.diaryData = diaryData
+        self.currentData = currentData
     }
     
     required init?(coder: NSCoder) {
@@ -48,7 +50,7 @@ final class EditViewController: UIViewController {
     }
     
     private func setNavigation() {
-        if let date = diaryData?.createdAt {
+        if let date = currentData?.createdAt {
             self.title = Formatter.changeCustomDate(date)
         } else {
             self.title = Formatter.changeCustomDate(currentDate)
@@ -79,14 +81,17 @@ final class EditViewController: UIViewController {
 
 // MARK: - Associate Save, Delete Logic
 extension EditViewController {
+    private func configureCurrentData(main: String, iconID: String) {
+        self.currentData = CurrentDiary(id: nil, main: main, iconID: iconID, createdAt: currentDate, contentText: nil)
+    }
+    
     @objc func saveWhenBackground() {
         self.checkToSave()
     }
     
     private func checkToSave() {
         let data = editView.packageData()
-        if let diaryData = diaryData {
-            guard let id = diaryData.id else { return }
+        if let id = currentData?.id {
             do {
                 try coreDataManager.updateData(id: id, contentText: data)
             } catch {
@@ -98,10 +103,10 @@ extension EditViewController {
             }
         } else {
             do {
-                self.diaryData = try coreDataManager.saveData(contentText: data,
-                                                              date: currentDate,
-                                                              main: main,
-                                                              iconID: iconID)
+                
+                let id = try coreDataManager.saveData(diaryData: currentData)
+                currentData?.id = id
+                print(currentData?.id)
             } catch {
                 guard let error = error as? DataError else { return }
                 self.showCustomAlert(alertText: error.localizedDescription,
@@ -113,8 +118,8 @@ extension EditViewController {
     }
     
     private func checkToDelete() {
-        guard let data = diaryData,
-              let contentText = diaryData?.contentText?.trimmingCharacters(
+        guard let data = currentData,
+              let contentText = data.contentText?.trimmingCharacters(
                 in: .whitespacesAndNewlines) else { return }
         
         if let id = data.id, contentText.count == .zero {
@@ -139,11 +144,11 @@ extension EditViewController {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let shareAction = UIAlertAction(title: "Share", style: .default) { _ in
-            self.moveToActivityView(data: self.diaryData)
+            self.moveToActivityView(data: self.currentData)
         }
         
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
-            guard let id = self.diaryData?.id else { return }
+            guard let id = self.currentData?.id else { return }
             
             do {
                 try self.coreDataManager.deleteData(id: id)
@@ -175,7 +180,7 @@ extension EditViewController: KeyboardActionSavable {
 // MARK: - Core Location
 extension EditViewController: CLLocationManagerDelegate {
     private func setupCoreLocationManager() {
-        if diaryData == nil {
+        if currentData == nil {
             locationManager = CLLocationManager()
             locationManager?.delegate = self
             
@@ -195,7 +200,7 @@ extension EditViewController: CLLocationManagerDelegate {
         
         locationManager?.stopUpdatingLocation()
     }
-}
+}gsdg
 
 // MARK: - Network
 extension EditViewController {
@@ -204,9 +209,7 @@ extension EditViewController {
         networkManager.fetchData(url: url) { result in
             switch result {
             case .success(let data):
-                self.iconID = data.weather.icon
-                self.main = data.weather.main
-                print(data)
+                self.configureCurrentData(main: data.weather.main, iconID: data.weather.icon)
             case .failure(let error):
                 print(error)
             }

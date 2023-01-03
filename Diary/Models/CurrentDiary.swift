@@ -8,8 +8,9 @@
 import Foundation
 
 struct CurrentDiary {
-    let contentText: String
-    let date: Date
-    let main: String
-    let iconID: String
+    var id: UUID?
+    let main: String?
+    let iconID: String?
+    let createdAt: Date?
+    let contentText: String?
 }

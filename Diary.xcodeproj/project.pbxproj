@@ -114,7 +114,6 @@
 				FC9C15FC29640ADF00272838 /* CurrentDiary.swift */,
 				3C7F9BAE2963C2A7006CAA4B /* Network */,
 				3C03E2892959731900E0DB67 /* CoreData */,
-				F63447C529506B8D00A43B7D /* DecoderManager.swift */,
 				F63447C929506D2E00A43B7D /* Error.swift */,
 			);
 			path = Models;
@@ -137,6 +136,7 @@
 				F6ED23FD2963BBC900807F78 /* NetworkManager.swift */,
 				3C7F9BAF2963C2D5006CAA4B /* NetworkRequest.swift */,
 				F6ED23FF2963BDAF00807F78 /* WeatherData.swift */,
+				F63447C529506B8D00A43B7D /* DecoderManager.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";

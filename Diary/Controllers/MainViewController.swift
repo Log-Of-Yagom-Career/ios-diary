@@ -61,7 +61,7 @@ final class MainViewController: UIViewController {
     }
     
     @objc private func addButtonTapped() {
-        let addViewController = EditViewController(diaryData: nil)
+        let addViewController = EditViewController(currentData: nil)
         self.navigationController?.pushViewController(addViewController, animated: true)
     }
 }
@@ -69,7 +69,14 @@ final class MainViewController: UIViewController {
 // MARK: - UICollectionViewDelegate
 extension MainViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let addViewController = EditViewController(diaryData: diaryDatas[indexPath.item])
+        
+        let item = diaryDatas[indexPath.item]
+        let currentData = CurrentDiary(id: item.id,
+                                       main: item.main,
+                                       iconID: item.iconID,
+                                       createdAt: item.createdAt,
+                                       contentText: item.contentText)
+        let addViewController = EditViewController(currentData: currentData)
         self.navigationController?.pushViewController(addViewController, animated: true)
     }
 }
@@ -127,7 +134,16 @@ extension MainViewController: SwipeConfigurable {
         let shareActionTitle = NSLocalizedString("Share", comment: "Share action title")
         let shareAction = UIContextualAction(style: .normal,
                                              title: shareActionTitle) { [weak self] _, _, _ in
-            self?.moveToActivityView(data: self?.diaryDatas[indexPath.item])
+            
+            guard let item = self?.diaryDatas[indexPath.item] else { return }
+            
+            let currentData = CurrentDiary(id: item.id,
+                                           main: item.main,
+                                           iconID: item.iconID,
+                                           createdAt: item.createdAt,
+                                           contentText: item.contentText)
+            
+            self?.moveToActivityView(data: currentData)
         }
         deleteAction.backgroundColor = .systemPink
         shareAction.backgroundColor = .systemBlue
