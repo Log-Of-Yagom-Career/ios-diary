@@ -200,7 +200,7 @@ extension EditViewController: CLLocationManagerDelegate {
         
         locationManager?.stopUpdatingLocation()
     }
-}gsdg
+}
 
 // MARK: - Network
 extension EditViewController {

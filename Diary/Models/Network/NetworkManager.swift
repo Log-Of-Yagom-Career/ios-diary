@@ -12,7 +12,7 @@ final class NetworkManager {
     
     private init() {}
     
-    func fetchData(url: URL, completion: @escaping (Result<[WeatherData], SessionError>) -> Void) {
+    func fetchData(url: URL, completion: @escaping (Result<WeatherData, SessionError>) -> Void) {
         
         let decodeManager = DecoderManager<WeatherData>()
         
